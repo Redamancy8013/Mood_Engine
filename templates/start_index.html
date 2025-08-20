@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>情感智能助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .left-panel {
+            flex: 1;
+            padding: 20px;
+            border-right: 1px solid #e0e0e0;
+            background-color: #fff;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        .right-panel {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h1 i, h2 i, h3 i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        .video-container {
+            margin-top: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .video-container img {
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        .video-container:hover img {
+            transform: scale(1.02);
+        }
+        .info-box {
+            margin: 15px 0;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .info-box:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .thinking-box {
+            margin: 15px 0;
+            padding: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ebf5fb;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-height: 150px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .thinking-box:before {
+            content: '\f0eb';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .response-box {
+            margin: 15px 0;
+            padding: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #e8f8f5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-height: 150px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .response-box:before {
+            content: '\f4ad';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #2ecc71;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .status-label {
+            font-weight: bold;
+            margin-right: 5px;
+            color: #2c3e50;
+            display: inline-flex;
+            align-items: center;
+        }
+        .status-label i {
+            margin-right: 5px;
+            color: #3498db;
+        }
+        .status-value {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            background-color: #f1f1f1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 5px;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .emotion-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 15px;
+            margin: 2px;
+            font-size: 0.8em;
+            background-color: #3498db;
+            color: white;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f1f1;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo i {
+            font-size: 24px;
+            color: #3498db;
+            margin-right: 10px;
+        }
+        .logo h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .left-panel, .right-panel {
+                flex: none;
+                width: 100%;
+            }
+        }
+        #ai-thinking, #ai-response {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .loading {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 20px;
+        }
+        .loading div {
+            position: absolute;
+            top: 8px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #3498db;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        .loading div:nth-child(1) {
+            left: 8px;
+            animation: loading1 0.6s infinite;
+        }
+        .loading div:nth-child(2) {
+            left: 8px;
+            animation: loading2 0.6s infinite;
+        }
+        .loading div:nth-child(3) {
+            left: 32px;
+            animation: loading2 0.6s infinite;
+        }
+        .loading div:nth-child(4) {
+            left: 56px;
+            animation: loading3 0.6s infinite;
+        }
+        @keyframes loading1 {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        @keyframes loading3 {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        @keyframes loading2 {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(24px, 0); }
+        }
+        /* 音频播放器样式 */
+        .audio-player {
+            margin: 15px 0;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f0f7ff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .audio-player:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .audio-player audio {
+            width: 100%;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            
+            <div class="video-container">
+                <img src="/video_feed" width="100%" style="max-width: 640px;" />
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-smile-beam"></i> 情感标签</h3>
+                <p><span class="status-label"><i class="fas fa-heart"></i> 情绪状态:</span> <span id="face-emotion-tag" class="status-value">加载中...</span></p>
+                <p><span class="status-label"><i class="fas fa-chart-bar"></i> VAD情绪模型:</span> <span id="face-vad-tag" class="status-value">加载中...</span></p>
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-microphone"></i> 语音输入</h3>
+                <p id="stt-message" class="status-value">等待语音输入...</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="header">
+                <h1><i class="fas fa-robot"></i> AI响应</h1>
+            </div>
+            
+            <div class="audio-player">
+                <h3><i class="fas fa-volume-up"></i> 语音播放</h3>
+                <audio id="audio-player" controls></audio>
+            </div>
+            
+            <div class="response-box">
+                <h3><i class="fas fa-comment-dots"></i> 角色回复</h3>
+                <div id="ai-response">等待回复...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // 定期更新状态
+    function updateStatus() {
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                // 更新情感标签
+                if (data.face_emotion_tag) {
+                    const emotions = data.face_emotion_tag.split(',');
+                    let emotionHtml = '';
+                    emotions.forEach(emotion => {
+                        emotionHtml += `<span class="emotion-tag">${emotion.trim()}</span> `;
+                    });
+                    document.getElementById('face-emotion-tag').innerHTML = emotionHtml || '无数据';
+                } else {
+                    document.getElementById('face-emotion-tag').textContent = '无数据';
+                }
+                
+                // 更新VAD情绪模型
+                document.getElementById('face-vad-tag').textContent = data.face_VAD_tag || '无数据';
+                
+                // 更新语音输入
+                document.getElementById('stt-message').textContent = data.stt_message || '等待语音输入...';
+                
+                // 更新AI回复
+                if (data.ai_response) {
+                    document.getElementById('ai-response').textContent = data.ai_response;
+                } else {
+                    document.getElementById('ai-response').innerHTML = '<div class="loading"><div></div><div></div><div></div><div></div></div>';
+                }
+            })
+            .catch(error => console.error('获取状态失败:', error));
+    }
+    
+    // 检查新音频文件
+    function checkNewAudio() {
+        fetch('/latest-audio')
+            .then(response => response.json())
+            .then(data => {
+                if (data.filename) {
+                    console.log('发现新音频文件:', data.filename);
+                    const audioPlayer = document.getElementById('audio-player');
+                    audioPlayer.src = `/audio/${data.filename}`;
+                    audioPlayer.play();
+                }
+            })
+            .catch(error => console.error('获取音频失败:', error));
+    }
+            
+    // 每秒更新一次状态
+    setInterval(updateStatus, 1000);
+    
+    // 每秒检查一次新音频
+    setInterval(checkNewAudio, 1000);
+    
+    // 页面加载完成后立即更新一次
+    document.addEventListener('DOMContentLoaded', () => {
+        updateStatus();
+        checkNewAudio();
+    });
+    </script>
+</body>
+</html>
